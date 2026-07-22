@@ -43,4 +43,4 @@ Diese Datenschutzerklärung wird angepasst, wenn sich die Datenverarbeitung oder
 
 ## Kontakt
 
-Verantwortlich für BeforeOops ist Lutz R. Frank. Eine Kontaktadresse wird spätestens vor der öffentlichen Veröffentlichung der App ergänzt.
+Verantwortlich für BeforeOops ist Lutz R. Frank. Fragen zum Datenschutz können per E-Mail an [mac@applem1.de](mailto:mac@applem1.de) gerichtet werden.
