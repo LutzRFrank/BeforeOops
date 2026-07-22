@@ -335,6 +335,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = BeforeOops;
 				INFOPLIST_KEY_CFBundleName = BeforeOops;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "BeforeOops benötigt die Kamera, um Briefe und Dokumente zu scannen.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "BeforeOops verwendet Face ID, um deine privaten Dokumente zu schützen.";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "BeforeOops erstellt nur nach deiner Bestätigung eine Erinnerung für erkannte Fristen.";
@@ -370,6 +371,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = BeforeOops;
 				INFOPLIST_KEY_CFBundleName = BeforeOops;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "BeforeOops benötigt die Kamera, um Briefe und Dokumente zu scannen.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "BeforeOops verwendet Face ID, um deine privaten Dokumente zu schützen.";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "BeforeOops erstellt nur nach deiner Bestätigung eine Erinnerung für erkannte Fristen.";
