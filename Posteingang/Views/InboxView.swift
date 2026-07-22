@@ -58,44 +58,7 @@ struct InboxView: View {
                         } else {
                             List(selection: $selectedDocument) {
                                 ForEach(filteredDocuments) { document in
-                                    DocumentRow(document: document)
-                                        .tag(document)
-                                        #if os(iOS)
-                                        .swipeActions(edge: .trailing) {
-                                            if inboxFilter == .trash {
-                                                Button("Endgültig löschen", systemImage: "trash", role: .destructive) {
-                                                    pendingDeletion = document
-                                                }
-                                            } else {
-                                                Button("Papierkorb", systemImage: "trash", role: .destructive) {
-                                                    moveToTrash(document)
-                                                }
-                                            }
-                                        }
-                                        .swipeActions(edge: .leading) {
-                                            if inboxFilter == .trash {
-                                                Button("Wiederherstellen", systemImage: "arrow.uturn.backward") {
-                                                    restore(document)
-                                                }
-                                                .tint(.green)
-                                            }
-                                        }
-                                        #endif
-                                        .contextMenu {
-                                            if inboxFilter == .trash {
-                                                Button("Wiederherstellen", systemImage: "arrow.uturn.backward") {
-                                                    restore(document)
-                                                }
-                                                Button("Endgültig löschen", role: .destructive) {
-                                                    pendingDeletion = document
-                                                }
-                                            } else {
-                                                Button("In den Papierkorb", role: .destructive) {
-                                                    moveToTrash(document)
-                                                }
-                                            }
-                                        }
-                                        .moveDisabled(sortOrder != .manual || inboxFilter == .trash)
+                                    documentRow(for: document)
                                 }
                                 .onMove(perform: moveDocuments)
                                 .onDelete(perform: requestDeletion)
@@ -316,6 +279,52 @@ struct InboxView: View {
         .onChange(of: filteredDocuments.map(\.id)) { _, visibleIDs in
             if let selectedDocument, !visibleIDs.contains(selectedDocument.id) {
                 self.selectedDocument = nil
+            }
+        }
+    }
+
+    private func documentRow(for document: InboxDocument) -> some View {
+        DocumentRow(document: document)
+            .tag(document)
+            #if os(iOS)
+            .swipeActions(edge: .trailing) {
+                if inboxFilter == .trash {
+                    Button("Endgültig löschen", systemImage: "trash", role: .destructive) {
+                        pendingDeletion = document
+                    }
+                } else {
+                    Button("Papierkorb", systemImage: "trash", role: .destructive) {
+                        moveToTrash(document)
+                    }
+                }
+            }
+            .swipeActions(edge: .leading) {
+                if inboxFilter == .trash {
+                    Button("Wiederherstellen", systemImage: "arrow.uturn.backward") {
+                        restore(document)
+                    }
+                    .tint(.green)
+                }
+            }
+            #endif
+            .contextMenu {
+                documentContextMenu(for: document)
+            }
+            .moveDisabled(sortOrder != .manual || inboxFilter == .trash)
+    }
+
+    @ViewBuilder
+    private func documentContextMenu(for document: InboxDocument) -> some View {
+        if inboxFilter == .trash {
+            Button("Wiederherstellen", systemImage: "arrow.uturn.backward") {
+                restore(document)
+            }
+            Button("Endgültig löschen", role: .destructive) {
+                pendingDeletion = document
+            }
+        } else {
+            Button("In den Papierkorb", role: .destructive) {
+                moveToTrash(document)
             }
         }
     }
