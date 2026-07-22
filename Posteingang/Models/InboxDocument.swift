@@ -55,6 +55,15 @@ final class InboxDocument {
         set { statusRawValue = newValue.rawValue }
     }
 
+    func replaceGeneratedScanTitle(with documentType: String) {
+        let prefix = "Scan-"
+        guard title.hasPrefix(prefix),
+              UUID(uuidString: String(title.dropFirst(prefix.count))) != nil
+        else { return }
+
+        title = documentType == "Dokument" ? "Gescanntes Dokument" : documentType
+    }
+
     init(
         id: UUID = UUID(),
         title: String,

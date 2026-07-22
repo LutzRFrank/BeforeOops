@@ -461,6 +461,7 @@ struct InboxView: View {
     }
 
     private func apply(_ analysis: DocumentAnalysisResult, to document: InboxDocument) {
+        document.replaceGeneratedScanTitle(with: analysis.documentType)
         document.analyzedDocumentType = analysis.documentType
         document.analysisSummary = analysis.summary
         document.recommendedAction = analysis.recommendedAction

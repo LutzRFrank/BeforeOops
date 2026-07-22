@@ -29,7 +29,7 @@ struct DocumentAnalysisResult: Sendable {
 }
 
 struct IntelligentDocumentService {
-    static let currentAnalysisVersion = 9
+    static let currentAnalysisVersion = 10
 
     func analyze(title: String, text: String) async -> DocumentAnalysisResult {
         let verifiedDates = DetectedDateService().dates(in: text)

@@ -598,6 +598,7 @@ struct DocumentDetailView: View {
             title: document.title,
             text: document.recognizedText
         )
+        document.replaceGeneratedScanTitle(with: analysis.documentType)
         document.analyzedDocumentType = analysis.documentType
         document.analysisSummary = analysis.summary
         document.recommendedAction = analysis.recommendedAction
@@ -630,6 +631,7 @@ struct DocumentDetailView: View {
                     title: document.title,
                     text: result.text
                 )
+                document.replaceGeneratedScanTitle(with: analysis.documentType)
                 document.analyzedDocumentType = analysis.documentType
                 document.analysisSummary = analysis.summary
                 document.recommendedAction = analysis.recommendedAction
