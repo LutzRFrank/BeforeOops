@@ -60,8 +60,7 @@ struct IntelligentDocumentService {
                 OCR-Text:
                 \(excerpt)
                 """,
-                generating: GeneratedDocumentAnalysis.self,
-                options: GenerationOptions(samplingMode: .greedy)
+                generating: GeneratedDocumentAnalysis.self
             )
             let result = response.content
             let resolvedDocumentType = canonicalDocumentType(
