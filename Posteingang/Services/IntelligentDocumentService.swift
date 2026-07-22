@@ -29,7 +29,7 @@ struct DocumentAnalysisResult: Sendable {
 }
 
 struct IntelligentDocumentService {
-    static let currentAnalysisVersion = 7
+    static let currentAnalysisVersion = 9
 
     func analyze(title: String, text: String) async -> DocumentAnalysisResult {
         let verifiedDates = DetectedDateService().dates(in: text)
@@ -122,7 +122,10 @@ struct IntelligentDocumentService {
     private func preferredDate(for documentType: String, from dates: [DetectedDate], in text: String) -> DetectedDate? {
         if isIdentityDocument(documentType) { return dates.last }
         let normalized = text.lowercased()
-        let deadlineMarkers = [" by ", " until ", "deadline", "due date", "return your", "submit", " bis ", "frist", "spätestens"]
+        let deadlineMarkers = [
+            " by ", " until ", "deadline", "due date", "return your", "submit",
+            " bis ", "frist", "spätestens", "fällig", "zahlbar", "zahlungsziel"
+        ]
         return dates.first { detected in
             guard let range = normalized.range(of: detected.sourceText.lowercased()) else { return false }
             let start = normalized.index(range.lowerBound, offsetBy: -80, limitedBy: normalized.startIndex) ?? normalized.startIndex
@@ -153,13 +156,69 @@ struct IntelligentDocumentService {
     }
 
     private func invoiceFacts(in text: String) -> String? {
-        let amountPattern = #"(?i)(?:rechnungsbetrag|gesamtbetrag|gesamt|total|zu\s+zahlen)\s*(?:€|eur)?\s*[:]?\s*(\d{1,6}(?:[.,]\d{2})?)\s*(?:€|eur)?"#
-        let amount = firstCapture(pattern: amountPattern, in: text)
+        let amount = invoiceTotalAmount(in: text)
         let status = invoicePaymentStatus(in: text)
         guard amount != nil || status != nil else { return nil }
         let amountText = amount.map { "Der Rechnungsbetrag beträgt \($0) €." } ?? ""
         let statusText = status.map { "Die Rechnung ist laut Dokument \($0)." } ?? "Der Bezahlstatus ist nicht eindeutig erkennbar."
         return [amountText, statusText].filter { !$0.isEmpty }.joined(separator: " ")
+    }
+
+    private func invoiceTotalAmount(in text: String) -> String? {
+        let labels = [
+            "rechnungsbetrag", "gesamtbetrag", "zahlbetrag", "zu zahlen",
+            "endbetrag", "bruttobetrag", "grand total", "amount due", "total"
+        ]
+        let numberPattern = #"(?:\d{1,3}(?:[.\s]\d{3})+|\d{1,6})[.,]\d{2}"#
+        let amountPattern = #"(?i)(?:€\s*("# + numberPattern + #")|("# + numberPattern + #")\s*(?:€|eur))"#
+        guard let amountExpression = try? NSRegularExpression(pattern: amountPattern) else { return nil }
+
+        func capturedAmount(from match: NSTextCheckingResult, in source: String) -> String? {
+            for group in 1...2 where match.range(at: group).location != NSNotFound {
+                if let range = Range(match.range(at: group), in: source) {
+                    return String(source[range])
+                }
+            }
+            return nil
+        }
+
+        // OCR preserves invoice rows more reliably than the visual column order. For an
+        // explicitly labelled total, the last monetary value on that row is the final sum,
+        // while earlier values can be net amount and VAT from adjacent table columns.
+        for line in text.components(separatedBy: .newlines) {
+            let normalizedLine = line.lowercased()
+                .replacingOccurrences(of: "\t", with: " ")
+            guard labels.contains(where: normalizedLine.contains) else { continue }
+            let matches = amountExpression.matches(
+                in: line,
+                range: NSRange(line.startIndex..., in: line)
+            )
+            if let match = matches.last,
+               let amount = capturedAmount(from: match, in: line) {
+                return amount
+            }
+        }
+
+        // Some OCR engines insert a line break between the label and its value. Restrict the
+        // fallback to a short window so an unrelated position price cannot win.
+        for label in labels {
+            guard let labelRange = text.range(of: label, options: [.caseInsensitive]) else { continue }
+            let end = text.index(
+                labelRange.upperBound,
+                offsetBy: 100,
+                limitedBy: text.endIndex
+            ) ?? text.endIndex
+            let window = String(text[labelRange.lowerBound..<end])
+            let matches = amountExpression.matches(
+                in: window,
+                range: NSRange(window.startIndex..., in: window)
+            )
+            if let match = matches.last,
+               let amount = capturedAmount(from: match, in: window) {
+                return amount
+            }
+        }
+        return nil
     }
 
     private func invoicePaymentStatus(in text: String) -> String? {
