@@ -26,88 +26,9 @@ struct InboxView: View {
 
     var body: some View {
         NavigationSplitView {
-            Group {
-                if documents.isEmpty {
-                    ContentUnavailableView {
-                        Label("Noch keine Dokumente", systemImage: "tray")
-                    } description: {
-                        Text("Importiere eine E-Mail, PDF- oder Bilddatei oder scanne einen Brief.")
-                    } actions: {
-                        Button("Dokument importieren") { isImporting = true }
-                            .buttonStyle(.borderedProminent)
-                    }
-                } else {
-                    VStack(spacing: 0) {
-                        Picker("Dokumentstatus", selection: $inboxFilter) {
-                            ForEach(availableFilters) { filter in
-                                Text(filter.title).tag(filter)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
-                        .accessibilityLabel("Dokumentstatus")
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 8)
-
-                        if filteredDocuments.isEmpty {
-                            ContentUnavailableView(
-                                inboxFilter.emptyTitle,
-                                systemImage: inboxFilter.emptyIcon,
-                                description: Text(inboxFilter.emptyDescription)
-                            )
-                        } else {
-                            List(selection: $selectedDocument) {
-                                ForEach(filteredDocuments) { document in
-                                    documentRow(for: document)
-                                }
-                                .onMove(perform: moveDocuments)
-                                .onDelete(perform: requestDeletion)
-                            }
-                            #if os(iOS)
-                            .refreshable {
-                                importPendingSharedDocuments()
-                                backfillCloudAssets()
-                                try? await Task.sleep(for: .milliseconds(350))
-                            }
-                            #endif
-                        }
-                    }
-                }
-            }
-            .navigationTitle("BeforeOops")
-            #if os(iOS)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Importieren", systemImage: "square.and.arrow.down") {
-                        isImporting = true
-                    }
-                }
-                ToolbarItem(placement: .secondaryAction) {
-                    Button("Scannen", systemImage: "doc.viewfinder") {
-                        isScanning = true
-                    }
-                }
-                ToolbarItem(placement: .secondaryAction) {
-                    EditButton()
-                }
-                ToolbarItem(placement: .secondaryAction) {
-                    syncButton
-                }
-                ToolbarItem(placement: .secondaryAction) {
-                    Button("Einstellungen", systemImage: "gearshape") {
-                        isShowingSettings = true
-                    }
-                }
-            }
-            #endif
+            sidebar
         } detail: {
-            if let selectedDocument {
-                DocumentDetailView(document: selectedDocument) {
-                    moveToTrash(selectedDocument)
-                }
-            } else {
-                ContentUnavailableView("Dokument auswählen", systemImage: "doc.text.magnifyingglass")
-            }
+            detail
         }
         #if os(macOS)
         .toolbar(removing: .sidebarToggle)
@@ -280,6 +201,113 @@ struct InboxView: View {
             if let selectedDocument, !visibleIDs.contains(selectedDocument.id) {
                 self.selectedDocument = nil
             }
+        }
+    }
+
+    private var sidebar: some View {
+        sidebarContent
+            .navigationTitle("BeforeOops")
+            #if os(iOS)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Importieren", systemImage: "square.and.arrow.down") {
+                        isImporting = true
+                    }
+                }
+                ToolbarItem(placement: .secondaryAction) {
+                    Button("Scannen", systemImage: "doc.viewfinder") {
+                        isScanning = true
+                    }
+                }
+                ToolbarItem(placement: .secondaryAction) {
+                    EditButton()
+                }
+                ToolbarItem(placement: .secondaryAction) {
+                    syncButton
+                }
+                ToolbarItem(placement: .secondaryAction) {
+                    Button("Einstellungen", systemImage: "gearshape") {
+                        isShowingSettings = true
+                    }
+                }
+            }
+            #endif
+    }
+
+    @ViewBuilder
+    private var sidebarContent: some View {
+        if documents.isEmpty {
+            ContentUnavailableView {
+                Label("Noch keine Dokumente", systemImage: "tray")
+            } description: {
+                Text("Importiere eine E-Mail, PDF- oder Bilddatei oder scanne einen Brief.")
+            } actions: {
+                Button("Dokument importieren") { isImporting = true }
+                    .buttonStyle(.borderedProminent)
+            }
+        } else {
+            populatedSidebar
+        }
+    }
+
+    private var populatedSidebar: some View {
+        VStack(spacing: 0) {
+            filterPicker
+            filteredDocumentContent
+        }
+    }
+
+    private var filterPicker: some View {
+        Picker("Dokumentstatus", selection: $inboxFilter) {
+            ForEach(availableFilters) { filter in
+                Text(filter.title).tag(filter)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .accessibilityLabel("Dokumentstatus")
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+    }
+
+    @ViewBuilder
+    private var filteredDocumentContent: some View {
+        if filteredDocuments.isEmpty {
+            ContentUnavailableView(
+                inboxFilter.emptyTitle,
+                systemImage: inboxFilter.emptyIcon,
+                description: Text(inboxFilter.emptyDescription)
+            )
+        } else {
+            documentList
+        }
+    }
+
+    private var documentList: some View {
+        List(selection: $selectedDocument) {
+            ForEach(filteredDocuments) { document in
+                documentRow(for: document)
+            }
+            .onMove(perform: moveDocuments)
+            .onDelete(perform: requestDeletion)
+        }
+        #if os(iOS)
+        .refreshable {
+            importPendingSharedDocuments()
+            backfillCloudAssets()
+            try? await Task.sleep(for: .milliseconds(350))
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var detail: some View {
+        if let selectedDocument {
+            DocumentDetailView(document: selectedDocument) {
+                moveToTrash(selectedDocument)
+            }
+        } else {
+            ContentUnavailableView("Dokument auswählen", systemImage: "doc.text.magnifyingglass")
         }
     }
 
