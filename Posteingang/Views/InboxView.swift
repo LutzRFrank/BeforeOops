@@ -25,6 +25,42 @@ struct InboxView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {
+        presentationContent
+            .task {
+                if !hideCompletedDocuments, inboxFilter == .open { inboxFilter = .all }
+                purgeExpiredTrash()
+                backfillCloudAssets()
+                while !Task.isCancelled {
+                    importPendingSharedDocuments()
+                    try? await Task.sleep(for: .seconds(2))
+                }
+            }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    purgeExpiredTrash()
+                    importPendingSharedDocuments()
+                }
+            }
+            .onChange(of: documents.map(\.id)) { _, _ in
+                try? DocumentStore().removeOrphanedOriginals(
+                    keeping: Set(documents.map(\.storedFilename))
+                )
+            }
+            .onChange(of: inboxFilter) { _, _ in
+                selectedDocument = nil
+            }
+            .onChange(of: hideCompletedDocuments) { _, hideCompleted in
+                if hideCompleted, inboxFilter == .all { inboxFilter = .open }
+                if !hideCompleted, inboxFilter == .open { inboxFilter = .all }
+            }
+            .onChange(of: filteredDocuments.map(\.id)) { _, visibleIDs in
+                if let selectedDocument, !visibleIDs.contains(selectedDocument.id) {
+                    self.selectedDocument = nil
+                }
+            }
+    }
+
+    private var navigationContent: some View {
         NavigationSplitView {
             sidebar
         } detail: {
@@ -48,6 +84,10 @@ struct InboxView: View {
             }
         }
         #endif
+    }
+
+    private var importContent: some View {
+        navigationContent
         .dropDestination(for: URL.self) { urls, _ in
             guard let url = urls.first else { return false }
             importDocument(from: url)
@@ -111,6 +151,10 @@ struct InboxView: View {
             .ignoresSafeArea()
         }
         #endif
+    }
+
+    private var presentationContent: some View {
+        importContent
         .alert("Import nicht möglich", isPresented: Binding(
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }
@@ -169,38 +213,6 @@ struct InboxView: View {
             set: { _ in }
         )) {
             OnboardingView()
-        }
-        .task {
-            if !hideCompletedDocuments, inboxFilter == .open { inboxFilter = .all }
-            purgeExpiredTrash()
-            backfillCloudAssets()
-            while !Task.isCancelled {
-                importPendingSharedDocuments()
-                try? await Task.sleep(for: .seconds(2))
-            }
-        }
-        .onChange(of: scenePhase) { _, phase in
-            if phase == .active {
-                purgeExpiredTrash()
-                importPendingSharedDocuments()
-            }
-        }
-        .onChange(of: documents.map(\.id)) { _, _ in
-            try? DocumentStore().removeOrphanedOriginals(
-                keeping: Set(documents.map(\.storedFilename))
-            )
-        }
-        .onChange(of: inboxFilter) { _, _ in
-            selectedDocument = nil
-        }
-        .onChange(of: hideCompletedDocuments) { _, hideCompleted in
-            if hideCompleted, inboxFilter == .all { inboxFilter = .open }
-            if !hideCompleted, inboxFilter == .open { inboxFilter = .all }
-        }
-        .onChange(of: filteredDocuments.map(\.id)) { _, visibleIDs in
-            if let selectedDocument, !visibleIDs.contains(selectedDocument.id) {
-                self.selectedDocument = nil
-            }
         }
     }
 
@@ -721,4 +733,15 @@ private struct ImportFeedbackBanner: View {
             .shadow(radius: 8, y: 3)
             .frame(maxWidth: 760)
     }
+}
+
+#Preview {
+    let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(
+        for: InboxDocument.self,
+        configurations: configuration
+    )
+
+    InboxView()
+        .modelContainer(container)
 }
