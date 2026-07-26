@@ -328,6 +328,8 @@
 				CODE_SIGN_ENTITLEMENTS = Posteingang.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				"CURRENT_PROJECT_VERSION[sdk=iphoneos*]" = 2;
+				"CURRENT_PROJECT_VERSION[sdk=iphonesimulator*]" = 2;
 				DEVELOPMENT_TEAM = F26768E8SW;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -345,6 +347,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.1;
+				"MARKETING_VERSION[sdk=iphoneos*]" = 1.1.1;
+				"MARKETING_VERSION[sdk=iphonesimulator*]" = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = de.lutzfrank.posteingang;
 				PRODUCT_NAME = BeforeOops;
 				REGISTER_APP_GROUPS = YES;
@@ -366,6 +370,8 @@
 				CODE_SIGN_ENTITLEMENTS = Posteingang.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				"CURRENT_PROJECT_VERSION[sdk=iphoneos*]" = 2;
+				"CURRENT_PROJECT_VERSION[sdk=iphonesimulator*]" = 2;
 				DEVELOPMENT_TEAM = F26768E8SW;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -383,6 +389,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.1;
+				"MARKETING_VERSION[sdk=iphoneos*]" = 1.1.1;
+				"MARKETING_VERSION[sdk=iphonesimulator*]" = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = de.lutzfrank.posteingang;
 				PRODUCT_NAME = BeforeOops;
 				REGISTER_APP_GROUPS = YES;
@@ -403,6 +411,8 @@
 				CODE_SIGN_ENTITLEMENTS = PosteingangShareExtension/PosteingangShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				"CURRENT_PROJECT_VERSION[sdk=iphoneos*]" = 2;
+				"CURRENT_PROJECT_VERSION[sdk=iphonesimulator*]" = 2;
 				DEVELOPMENT_TEAM = F26768E8SW;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PosteingangShareExtension/Info.plist;
@@ -413,6 +423,8 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
+				"MARKETING_VERSION[sdk=iphoneos*]" = 1.1.1;
+				"MARKETING_VERSION[sdk=iphonesimulator*]" = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = de.lutzfrank.posteingang.share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -433,6 +445,8 @@
 				CODE_SIGN_ENTITLEMENTS = PosteingangShareExtension/PosteingangShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				"CURRENT_PROJECT_VERSION[sdk=iphoneos*]" = 2;
+				"CURRENT_PROJECT_VERSION[sdk=iphonesimulator*]" = 2;
 				DEVELOPMENT_TEAM = F26768E8SW;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PosteingangShareExtension/Info.plist;
@@ -444,6 +458,8 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.1;
+				"MARKETING_VERSION[sdk=iphoneos*]" = 1.1.1;
+				"MARKETING_VERSION[sdk=iphonesimulator*]" = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = de.lutzfrank.posteingang.share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;

@@ -30,6 +30,10 @@ struct InboxView: View {
                 if !hideCompletedDocuments, inboxFilter == .open { inboxFilter = .all }
                 purgeExpiredTrash()
                 backfillCloudAssets()
+
+#if targetEnvironment(simulator)
+            loadSampleDocumentsIfNeeded()
+#endif
                 while !Task.isCancelled {
                     importPendingSharedDocuments()
                     try? await Task.sleep(for: .seconds(2))
@@ -306,8 +310,7 @@ struct InboxView: View {
         #if os(iOS)
         .refreshable {
             importPendingSharedDocuments()
-            backfillCloudAssets()
-            try? await Task.sleep(for: .milliseconds(350))
+            reloadCloudDocuments()
         }
         #endif
     }
@@ -458,16 +461,15 @@ struct InboxView: View {
                 syncMessage = "iCloud ist auf diesem Gerät nicht verfügbar. Bitte iCloud Drive und den Apple-Account in den Systemeinstellungen prüfen."
                 return
             }
-            backfillCloudAssets()
-            let requestDate = Date.now
-            for document in documents {
-                document.syncRequestedAt = requestDate
-            }
             try modelContext.save()
-            syncMessage = "Die Synchronisierung wurde angestoßen. CloudKit überträgt Änderungen anschließend automatisch im Hintergrund."
+            reloadCloudDocuments()
         } catch {
             syncMessage = "iCloud konnte nicht gestartet werden: \(error.localizedDescription)"
         }
+    }
+
+    private func reloadCloudDocuments() {
+        NotificationCenter.default.post(name: .reloadCloudModelContainer, object: nil)
     }
 
     private func recognizeText(in document: InboxDocument) async {

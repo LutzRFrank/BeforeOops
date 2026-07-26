@@ -47,12 +47,35 @@ final class InboxDocument {
     var syncRequestedAt: Date?
     var reminderCreatedAt: Date?
     var reminderDueDate: Date?
+    var reminderDueDatesData: Data?
     var completedAt: Date?
     var deletedAt: Date?
 
     var status: DocumentStatus {
         get { DocumentStatus(rawValue: statusRawValue) ?? .new }
         set { statusRawValue = newValue.rawValue }
+    }
+
+    var reminderDueDates: [Date] {
+        get {
+            if let reminderDueDatesData,
+               let dates = try? JSONDecoder().decode([Date].self, from: reminderDueDatesData) {
+                return dates
+            }
+            return reminderDueDate.map { [$0] } ?? []
+        }
+        set {
+            reminderDueDatesData = try? JSONEncoder().encode(newValue)
+            reminderDueDate = newValue.last
+        }
+    }
+
+    func addReminderDueDate(_ date: Date) {
+        let calendar = Calendar.autoupdatingCurrent
+        guard !reminderDueDates.contains(where: { calendar.isDate($0, inSameDayAs: date) }) else {
+            return
+        }
+        reminderDueDates.append(date)
     }
 
     func replaceGeneratedScanTitle(with documentType: String) {

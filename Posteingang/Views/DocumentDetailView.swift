@@ -482,10 +482,14 @@ struct DocumentDetailView: View {
     }
 
     private func hasReminder(for date: Date) -> Bool {
-        if let reminderDueDate = document.reminderDueDate {
-            return Calendar.autoupdatingCurrent.isDate(reminderDueDate, inSameDayAs: date)
+        if document.reminderDueDates.contains(where: {
+            Calendar.autoupdatingCurrent.isDate($0, inSameDayAs: date)
+        }) {
+            return true
         }
-        return document.reminderCreatedAt != nil && detectedDates.count == 1
+        return document.reminderCreatedAt != nil
+            && document.reminderDueDates.isEmpty
+            && detectedDates.count == 1
     }
 
     private var exportFingerprint: String {
@@ -565,7 +569,7 @@ struct DocumentDetailView: View {
             )
             reminderWasCreated = true
             document.reminderCreatedAt = .now
-            document.reminderDueDate = detectedDate.date
+            document.addReminderDueDate(detectedDate.date)
             document.completedAt = .now
             document.status = .reviewed
             try? modelContext.save()
