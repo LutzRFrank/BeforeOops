@@ -2,6 +2,7 @@ import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
 import CloudKit
+import Combine
 import CoreData
 
 struct InboxView: View {
@@ -71,6 +72,7 @@ struct InboxView: View {
                 NotificationCenter.default.publisher(
                     for: NSPersistentCloudKitContainer.eventChangedNotification
                 )
+                .receive(on: DispatchQueue.main)
             ) { notification in
                 handleCloudEvent(notification)
             }
@@ -561,6 +563,9 @@ struct InboxView: View {
         activeCloudEvents.remove(event.identifier)
         if event.succeeded {
             lastCloudSyncDate = event.endDate
+            if event.type == .import {
+                modelContext.processPendingChanges()
+            }
         } else if let error = event.error {
             syncMessage = "iCloud-Abgleich fehlgeschlagen: \(error.localizedDescription)"
         }
