@@ -2,19 +2,23 @@ import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
 import CloudKit
+import CoreData
 
 struct InboxView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Query private var documents: [InboxDocument]
 
-    @State private var selectedDocument: InboxDocument?
+    @State private var selectedDocumentID: UUID?
     @State private var isImporting = false
     @State private var isScanning = false
     @State private var errorMessage: String?
     @State private var pendingDeletion: InboxDocument?
+    @State private var pendingRename: InboxDocument?
+    @State private var renameDraft = ""
     @State private var syncMessage: String?
-    @State private var isSyncing = false
+    @State private var activeCloudEvents: Set<UUID> = []
+    @State private var lastCloudSyncDate: Date?
     @State private var isDropTargeted = false
     @State private var inboxFilter: InboxFilter = .open
     @State private var isShowingSettings = false
@@ -52,16 +56,23 @@ struct InboxView: View {
                 )
             }
             .onChange(of: inboxFilter) { _, _ in
-                selectedDocument = nil
+                selectedDocumentID = nil
             }
             .onChange(of: hideCompletedDocuments) { _, hideCompleted in
                 if hideCompleted, inboxFilter == .all { inboxFilter = .open }
                 if !hideCompleted, inboxFilter == .open { inboxFilter = .all }
             }
             .onChange(of: filteredDocuments.map(\.id)) { _, visibleIDs in
-                if let selectedDocument, !visibleIDs.contains(selectedDocument.id) {
-                    self.selectedDocument = nil
+                if let selectedDocumentID, !visibleIDs.contains(selectedDocumentID) {
+                    self.selectedDocumentID = nil
                 }
+            }
+            .onReceive(
+                NotificationCenter.default.publisher(
+                    for: NSPersistentCloudKitContainer.eventChangedNotification
+                )
+            ) { notification in
+                handleCloudEvent(notification)
             }
     }
 
@@ -180,6 +191,27 @@ struct InboxView: View {
             Button("OK", role: .cancel) { syncMessage = nil }
         } message: {
             Text(syncMessage ?? "")
+        }
+        .alert("Dokument umbenennen", isPresented: Binding(
+            get: { pendingRename != nil },
+            set: {
+                if !$0 {
+                    pendingRename = nil
+                    renameDraft = ""
+                }
+            }
+        )) {
+            TextField("Name", text: $renameDraft)
+            Button("Umbenennen") {
+                renamePendingDocument()
+            }
+            .disabled(renameDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            Button("Abbrechen", role: .cancel) {
+                pendingRename = nil
+                renameDraft = ""
+            }
+        } message: {
+            Text("Gib einen neuen Namen für den Eintrag ein.")
         }
         .confirmationDialog(
             inboxFilter == .trash ? "Dokument endgültig löschen?" : "Dokument in den Papierkorb bewegen?",
@@ -330,7 +362,7 @@ struct InboxView: View {
     }
 
     private var documentList: some View {
-        List(selection: $selectedDocument) {
+        List(selection: $selectedDocumentID) {
             ForEach(filteredDocuments) { document in
                 documentRow(for: document)
             }
@@ -340,14 +372,15 @@ struct InboxView: View {
         #if os(iOS)
         .refreshable {
             importPendingSharedDocuments()
-            reloadCloudDocuments()
+            backfillCloudAssets()
         }
         #endif
     }
 
     @ViewBuilder
     private var detail: some View {
-        if let selectedDocument {
+        if let selectedDocumentID,
+           let selectedDocument = documents.first(where: { $0.id == selectedDocumentID }) {
             DocumentDetailView(document: selectedDocument) {
                 moveToTrash(selectedDocument)
             }
@@ -358,7 +391,7 @@ struct InboxView: View {
 
     private func documentRow(for document: InboxDocument) -> some View {
         DocumentRow(document: document)
-            .tag(document)
+            .tag(document.id)
             #if os(iOS)
             .swipeActions(edge: .trailing) {
                 if inboxFilter == .trash {
@@ -377,6 +410,11 @@ struct InboxView: View {
                         restore(document)
                     }
                     .tint(.green)
+                } else {
+                    Button("Umbenennen", systemImage: "pencil") {
+                        requestRename(document)
+                    }
+                    .tint(.blue)
                 }
             }
             #endif
@@ -396,6 +434,9 @@ struct InboxView: View {
                 pendingDeletion = document
             }
         } else {
+            Button("Umbenennen", systemImage: "pencil") {
+                requestRename(document)
+            }
             Button("In den Papierkorb", role: .destructive) {
                 moveToTrash(document)
             }
@@ -415,7 +456,7 @@ struct InboxView: View {
             )
             document.manualSortIndex = (documents.compactMap(\.manualSortIndex).min() ?? 0) - 1
             modelContext.insert(document)
-            selectedDocument = document
+            selectedDocumentID = document.id
             Task { await recognizeText(in: document) }
         } catch {
             errorMessage = error.localizedDescription
@@ -438,7 +479,7 @@ struct InboxView: View {
                 document.manualSortIndex = (documents.compactMap(\.manualSortIndex).min() ?? 0) - 1
                 modelContext.insert(document)
                 try store.removePendingSharedFile(at: url)
-                selectedDocument = document
+                selectedDocumentID = document.id
                 Task { await recognizeText(in: document) }
             }
         } catch {
@@ -467,22 +508,23 @@ struct InboxView: View {
 
     private var syncButton: some View {
         Button {
-            Task { await requestCloudSync() }
+            Task { await showCloudSyncStatus() }
         } label: {
             if isSyncing {
                 ProgressView()
                     .controlSize(.small)
             } else {
-                Label("iCloud synchronisieren", systemImage: "icloud.and.arrow.up")
+                Label("iCloud-Status", systemImage: "icloud")
             }
         }
-        .disabled(isSyncing)
-        .help("Dokumente mit iCloud synchronisieren")
+        .help("Status der automatischen iCloud-Synchronisierung anzeigen")
     }
 
-    private func requestCloudSync() async {
-        isSyncing = true
-        defer { isSyncing = false }
+    private var isSyncing: Bool {
+        !activeCloudEvents.isEmpty
+    }
+
+    private func showCloudSyncStatus() async {
         do {
             let status = try await CKContainer(
                 identifier: "iCloud.de.lutzfrank.posteingang"
@@ -491,15 +533,37 @@ struct InboxView: View {
                 syncMessage = "iCloud ist auf diesem Gerät nicht verfügbar. Bitte iCloud Drive und den Apple-Account in den Systemeinstellungen prüfen."
                 return
             }
-            try modelContext.save()
-            reloadCloudDocuments()
+
+            if isSyncing {
+                syncMessage = "BeforeOops gleicht Änderungen gerade automatisch mit iCloud ab."
+            } else if let lastCloudSyncDate {
+                syncMessage = "iCloud ist aktiv. Letzter erfolgreicher Abgleich: \(lastCloudSyncDate.formatted(date: .abbreviated, time: .standard))."
+            } else {
+                syncMessage = "iCloud ist aktiv. Änderungen werden automatisch zwischen deinen Geräten synchronisiert."
+            }
         } catch {
-            syncMessage = "iCloud konnte nicht gestartet werden: \(error.localizedDescription)"
+            syncMessage = "iCloud-Status konnte nicht ermittelt werden: \(error.localizedDescription)"
         }
     }
 
-    private func reloadCloudDocuments() {
-        NotificationCenter.default.post(name: .reloadCloudModelContainer, object: nil)
+    private func handleCloudEvent(_ notification: Notification) {
+        guard let event = notification.userInfo?[
+            NSPersistentCloudKitContainer.eventNotificationUserInfoKey
+        ] as? NSPersistentCloudKitContainer.Event else {
+            return
+        }
+
+        if event.endDate == nil {
+            activeCloudEvents.insert(event.identifier)
+            return
+        }
+
+        activeCloudEvents.remove(event.identifier)
+        if event.succeeded {
+            lastCloudSyncDate = event.endDate
+        } else if let error = event.error {
+            syncMessage = "iCloud-Abgleich fehlgeschlagen: \(error.localizedDescription)"
+        }
     }
 
     private func recognizeText(in document: InboxDocument) async {
@@ -553,10 +617,29 @@ struct InboxView: View {
     }
 
     private func moveToTrash(_ document: InboxDocument) {
-        if selectedDocument == document { selectedDocument = nil }
+        if selectedDocumentID == document.id { selectedDocumentID = nil }
         document.deletedAt = .now
         recentlyTrashed = document
         try? modelContext.save()
+    }
+
+    private func requestRename(_ document: InboxDocument) {
+        renameDraft = document.title
+        pendingRename = document
+    }
+
+    private func renamePendingDocument() {
+        guard let document = pendingRename else { return }
+        let newTitle = renameDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !newTitle.isEmpty else { return }
+        document.title = newTitle
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        pendingRename = nil
+        renameDraft = ""
     }
 
     private func restore(_ document: InboxDocument) {
@@ -565,8 +648,8 @@ struct InboxView: View {
     }
 
     private func permanentlyDelete(_ document: InboxDocument) {
-        let wasSelected = selectedDocument == document
-        if wasSelected { selectedDocument = nil }
+        let wasSelected = selectedDocumentID == document.id
+        if wasSelected { selectedDocumentID = nil }
 
         Task { @MainActor in
             if wasSelected { await Task.yield() }
@@ -582,7 +665,7 @@ struct InboxView: View {
 
     private func emptyTrash() {
         let trashedDocuments = documents.filter { $0.deletedAt != nil }
-        selectedDocument = nil
+        selectedDocumentID = nil
         for document in trashedDocuments {
             try? DocumentStore().deleteFile(for: document)
             modelContext.delete(document)

@@ -1,10 +1,6 @@
 import SwiftData
 import SwiftUI
 
-extension Notification.Name {
-    static let reloadCloudModelContainer = Notification.Name("reloadCloudModelContainer")
-}
-
 @main
 struct BeforeOopsApp: App {
     @StateObject private var appLock = AppLockController()
@@ -50,9 +46,6 @@ private struct CloudModelContainerRoot: View {
         .task(id: isLoading) {
             guard isLoading else { return }
             loadModelContainer()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .reloadCloudModelContainer)) { _ in
-            loadingState = .loading
         }
     }
 
