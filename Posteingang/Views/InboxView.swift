@@ -19,6 +19,7 @@ struct InboxView: View {
     @State private var inboxFilter: InboxFilter = .open
     @State private var isShowingSettings = false
     @State private var recentlyTrashed: InboxDocument?
+    @State private var isConfirmingEmptyTrash = false
     @State private var importFeedback: ImportFeedback?
     @AppStorage("hideCompletedDocuments") private var hideCompletedDocuments = true
     @AppStorage("inboxSortOrder") private var sortOrderRawValue = InboxSortOrder.manual.rawValue
@@ -84,6 +85,11 @@ struct InboxView: View {
             ToolbarItem(placement: .secondaryAction) {
                 Button("Einstellungen", systemImage: "gearshape") {
                     isShowingSettings = true
+                }
+            }
+            if inboxFilter == .trash, hasTrashedDocuments {
+                ToolbarItem(placement: .secondaryAction) {
+                    emptyTrashButton
                 }
             }
         }
@@ -199,6 +205,18 @@ struct InboxView: View {
                  ? "Originaldatei, erkannter Text und Analyse werden dauerhaft entfernt."
                  : "Der Eintrag kann 30 Tage lang wiederhergestellt werden.")
         }
+        .confirmationDialog(
+            "Papierkorb vollständig leeren?",
+            isPresented: $isConfirmingEmptyTrash,
+            titleVisibility: .visible
+        ) {
+            Button("Alle Einträge endgültig löschen", role: .destructive) {
+                emptyTrash()
+            }
+            Button("Abbrechen", role: .cancel) {}
+        } message: {
+            Text("Alle Dokumente im Papierkorb, ihre Originaldateien, erkannten Texte und Analysen werden dauerhaft gelöscht.")
+        }
         .alert("In den Papierkorb bewegt", isPresented: Binding(
             get: { recentlyTrashed != nil },
             set: { if !$0 { recentlyTrashed = nil } }
@@ -246,8 +264,20 @@ struct InboxView: View {
                         isShowingSettings = true
                     }
                 }
+                if inboxFilter == .trash, hasTrashedDocuments {
+                    ToolbarItem(placement: .secondaryAction) {
+                        emptyTrashButton
+                    }
+                }
             }
             #endif
+    }
+
+    private var emptyTrashButton: some View {
+        Button("Papierkorb leeren", systemImage: "trash", role: .destructive) {
+            isConfirmingEmptyTrash = true
+        }
+        .help("Alle Einträge im Papierkorb endgültig löschen")
     }
 
     @ViewBuilder
@@ -550,6 +580,24 @@ struct InboxView: View {
         }
     }
 
+    private func emptyTrash() {
+        let trashedDocuments = documents.filter { $0.deletedAt != nil }
+        selectedDocument = nil
+        for document in trashedDocuments {
+            try? DocumentStore().deleteFile(for: document)
+            modelContext.delete(document)
+        }
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private var hasTrashedDocuments: Bool {
+        documents.contains { $0.deletedAt != nil }
+    }
+
     private func purgeExpiredTrash() {
         guard let cutoff = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now) else { return }
         let expired = documents.filter { ($0.deletedAt ?? .distantFuture) < cutoff }
@@ -592,7 +640,6 @@ struct InboxView: View {
             if inboxFilter == .trash { return document.deletedAt != nil }
             guard document.deletedAt == nil else { return false }
             let isCompleted = document.completedAt != nil
-                || document.reminderCreatedAt != nil
                 || document.status == .reviewed
             switch inboxFilter {
             case .all: return true

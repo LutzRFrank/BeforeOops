@@ -21,7 +21,6 @@ struct DocumentDetailView: View {
     @State private var exportURL: URL?
     @State private var errorMessage: String?
     @State private var reminderMessage: String?
-    @State private var reminderWasCreated = false
     @State private var isConfirmingRemoval = false
     @State private var isAnalyzing = false
     @State private var landscapePreviewRatio: CGFloat = 0.42
@@ -67,18 +66,7 @@ struct DocumentDetailView: View {
                 get: { reminderMessage != nil },
                 set: { if !$0 { reminderMessage = nil } }
             )) {
-                if reminderWasCreated {
-                    Button("Eintrag aus BeforeOops entfernen", role: .destructive) {
-                        reminderMessage = nil
-                        removeFromBeforeOops()
-                    }
-                    Button("Eintrag behalten", role: .cancel) {
-                        reminderMessage = nil
-                        markCompleted()
-                    }
-                } else {
-                    Button("OK", role: .cancel) { reminderMessage = nil }
-                }
+                Button("OK", role: .cancel) { reminderMessage = nil }
             } message: {
                 Text(reminderMessage ?? "")
             }
@@ -388,7 +376,7 @@ struct DocumentDetailView: View {
 
     @ViewBuilder
     private var completedButton: some View {
-        if document.completedAt != nil || document.reminderCreatedAt != nil {
+        if document.completedAt != nil || document.status == .reviewed {
             Button("Erledigt", systemImage: "checkmark.circle.fill") {
                 isConfirmingRemoval = true
             }
@@ -567,16 +555,12 @@ struct DocumentDetailView: View {
                 notes: "Erkannt in: \(document.originalFilename)\nDatumsangabe: \(detectedDate.sourceText)",
                 leadDays: reminderLeadDays
             )
-            reminderWasCreated = true
             document.reminderCreatedAt = .now
             document.addReminderDueDate(detectedDate.date)
-            document.completedAt = .now
-            document.status = .reviewed
-            try? modelContext.save()
+            try modelContext.save()
             let leadTitle = ReminderLeadTime(rawValue: reminderLeadDays)?.title ?? "\(reminderLeadDays) Tage vorher"
             reminderMessage = "Erinnerung für \(detectedDate.date.formatted(date: .long, time: .omitted)) erstellt – Hinweis \(leadTitle.lowercased())."
         } catch {
-            reminderWasCreated = false
             reminderMessage = error.localizedDescription
         }
     }
