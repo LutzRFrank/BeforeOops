@@ -20,6 +20,7 @@ struct InboxView: View {
     @State private var syncMessage: String?
     @State private var activeCloudEvents: Set<UUID> = []
     @State private var lastCloudSyncDate: Date?
+    @State private var lastCloudSyncError: Error?
     @State private var isDropTargeted = false
     @State private var inboxFilter: InboxFilter = .open
     @State private var isShowingSettings = false
@@ -538,6 +539,8 @@ struct InboxView: View {
 
             if isSyncing {
                 syncMessage = "BeforeOops gleicht Änderungen gerade automatisch mit iCloud ab."
+            } else if let lastCloudSyncError {
+                syncMessage = "Der letzte iCloud-Abgleich ist fehlgeschlagen: \(lastCloudSyncError.localizedDescription)"
             } else if let lastCloudSyncDate {
                 syncMessage = "iCloud ist aktiv. Letzter erfolgreicher Abgleich: \(lastCloudSyncDate.formatted(date: .abbreviated, time: .standard))."
             } else {
@@ -562,12 +565,13 @@ struct InboxView: View {
 
         activeCloudEvents.remove(event.identifier)
         if event.succeeded {
+            lastCloudSyncError = nil
             lastCloudSyncDate = event.endDate
             if event.type == .import {
                 modelContext.processPendingChanges()
             }
         } else if let error = event.error {
-            syncMessage = "iCloud-Abgleich fehlgeschlagen: \(error.localizedDescription)"
+            lastCloudSyncError = error
         }
     }
 

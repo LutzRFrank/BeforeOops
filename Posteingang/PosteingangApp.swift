@@ -1,9 +1,21 @@
 import SwiftData
 import SwiftUI
+#if os(iOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 @main
 struct BeforeOopsApp: App {
     @StateObject private var appLock = AppLockController()
+#if os(iOS)
+    @UIApplicationDelegateAdaptor(RemoteNotificationAppDelegate.self)
+    private var appDelegate
+#elseif os(macOS)
+    @NSApplicationDelegateAdaptor(RemoteNotificationAppDelegate.self)
+    private var appDelegate
+#endif
 
     var body: some Scene {
         WindowGroup {
@@ -12,6 +24,24 @@ struct BeforeOopsApp: App {
         }
     }
 }
+
+#if os(iOS)
+private final class RemoteNotificationAppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        application.registerForRemoteNotifications()
+        return true
+    }
+}
+#elseif os(macOS)
+private final class RemoteNotificationAppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApplication.shared.registerForRemoteNotifications()
+    }
+}
+#endif
 
 private struct CloudModelContainerRoot: View {
     private enum LoadingState {

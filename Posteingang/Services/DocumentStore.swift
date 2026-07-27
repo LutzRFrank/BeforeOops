@@ -5,12 +5,14 @@ enum DocumentStoreError: LocalizedError {
     case unsupportedType
     case unreadableFile
     case emptyFile
+    case incompleteCloudFile
 
     var errorDescription: String? {
         switch self {
         case .unsupportedType: "Dieses Dateiformat wird noch nicht unterstützt."
         case .unreadableFile: "Die Datei konnte nicht gelesen werden."
         case .emptyFile: "Die ausgewählte Datei enthält keine lesbaren Daten."
+        case .incompleteCloudFile: "Die Originaldatei wird noch vollständig aus iCloud geladen."
         }
     }
 }
@@ -137,19 +139,32 @@ struct DocumentStore {
 
     func url(for document: InboxDocument) throws -> URL {
         let destination = try documentsDirectory.appending(path: document.storedFilename)
-        if !fileManager.fileExists(atPath: destination.path), let data = document.originalData {
-            try data.write(to: destination, options: .atomic)
-            try protectFile(at: destination)
+        if let data = document.originalData {
+            try validate(data: data, expectedSize: document.fileSize)
+            let localSize = try? destination.resourceValues(forKeys: [.fileSizeKey]).fileSize
+            if localSize != data.count {
+                try data.write(to: destination, options: .atomic)
+                try protectFile(at: destination)
+            }
         }
         guard fileManager.fileExists(atPath: destination.path) else {
             throw DocumentStoreError.unreadableFile
+        }
+        let localSize = try destination.resourceValues(forKeys: [.fileSizeKey]).fileSize
+        guard localSize.map(Int64.init) == document.fileSize else {
+            throw DocumentStoreError.incompleteCloudFile
         }
         return destination
     }
 
     func data(for document: InboxDocument) throws -> Data {
-        if let data = document.originalData { return data }
-        return try Data(contentsOf: url(for: document), options: .mappedIfSafe)
+        if let data = document.originalData {
+            try validate(data: data, expectedSize: document.fileSize)
+            return data
+        }
+        let data = try Data(contentsOf: url(for: document), options: .mappedIfSafe)
+        try validate(data: data, expectedSize: document.fileSize)
+        return data
     }
 
     func deleteFile(for document: InboxDocument) throws {
@@ -251,5 +266,12 @@ struct DocumentStore {
         var values = URLResourceValues()
         values.isExcludedFromBackup = true
         try protectedDestination.setResourceValues(values)
+    }
+
+    private func validate(data: Data, expectedSize: Int64) throws {
+        guard !data.isEmpty else { throw DocumentStoreError.emptyFile }
+        guard expectedSize <= 0 || Int64(data.count) == expectedSize else {
+            throw DocumentStoreError.incompleteCloudFile
+        }
     }
 }

@@ -1,17 +1,25 @@
 # Versionshinweise
 
-## iOS und iPadOS 1.1.1
+## iOS und iPadOS 1.2
 
-Erinnerungen aus BeforeOops werden jetzt übersichtlich in einer eigenen „BeforeOops“-Liste gespeichert.
+Neu in dieser Version:
 
-Enthält ein Dokument mehrere erkannte Termine, können für alle Termine Erinnerungen angelegt werden. Jeder angelegte Termin wird dabei separat als erledigt markiert.
+- Erinnerungen werden in einer eigenen „BeforeOops“-Liste gespeichert.
+- Für mehrere erkannte Termine lassen sich jeweils eigene Erinnerungen anlegen.
+- Ein Dokument bleibt offen, bis du es ausdrücklich als erledigt markierst.
+- Dokumente können direkt in der Liste umbenannt oder gelöscht werden.
+- Der Papierkorb kann vollständig geleert werden.
+- Die iCloud-Synchronisierung reagiert zuverlässiger auf Änderungen anderer Geräte.
+- Unvollständig geladene Originaldateien werden erkannt und nach vollständigem iCloud-Download automatisch ersetzt.
 
-Zusätzlich verbessert dieses Update die Zuverlässigkeit der iCloud-Synchronisierung.
+## macOS 1.2
 
-## macOS 1.1
+Neu in dieser Version:
 
-Erinnerungen aus BeforeOops werden jetzt übersichtlich in einer eigenen „BeforeOops“-Liste gespeichert.
-
-Enthält ein Dokument mehrere erkannte Termine, können für alle Termine Erinnerungen angelegt werden. Jeder angelegte Termin wird dabei separat als erledigt markiert.
-
-Zusätzlich verbessert dieses Update die Zuverlässigkeit der iCloud-Synchronisierung.
+- Erinnerungen werden in einer eigenen „BeforeOops“-Liste gespeichert.
+- Für mehrere erkannte Termine lassen sich jeweils eigene Erinnerungen anlegen.
+- Ein Dokument bleibt offen, bis du es ausdrücklich als erledigt markierst.
+- Dokumente können umbenannt oder gelöscht werden.
+- Der Papierkorb kann vollständig geleert werden.
+- Die iCloud-Synchronisierung reagiert zuverlässiger auf Änderungen anderer Geräte.
+- Unvollständig geladene Originaldateien werden erkannt und nach vollständigem iCloud-Download automatisch ersetzt.

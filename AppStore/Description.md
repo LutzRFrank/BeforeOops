@@ -1,6 +1,6 @@
 # App-Beschreibung
 
-## iOS und iPadOS 1.1.1
+## iOS und iPadOS 1.2
 
 BeforeOops hilft dir, wichtige Informationen und Fristen in Dokumenten rechtzeitig zu erkennen.
 
@@ -18,7 +18,7 @@ Deine Dokumente bleiben geschützt:
 
 So behältst du Rechnungen, Ausweise, Führerscheine, Verträge und andere wichtige Unterlagen im Blick – bevor etwas übersehen wird.
 
-## macOS 1.1
+## macOS 1.2
 
 BeforeOops hilft dir, wichtige Informationen und Fristen in Dokumenten rechtzeitig zu erkennen.
 

@@ -43,7 +43,7 @@ struct DocumentDetailView: View {
                     }
                 }
             }
-            .task(id: document.id) {
+            .task(id: previewSourceFingerprint) {
                 do {
                     try preparePreview()
                     await refreshAnalysisIfNeeded()
@@ -490,6 +490,10 @@ struct DocumentDetailView: View {
             document.recommendedAction ?? "",
             String(document.analysisVersion)
         ].joined(separator: "|")
+    }
+
+    private var previewSourceFingerprint: String {
+        "\(document.id.uuidString)|\(document.originalData?.count ?? -1)|\(document.fileSize)"
     }
 
     private func preparePreview() throws {
