@@ -470,23 +470,32 @@ struct InboxView: View {
         do {
             let store = DocumentStore()
             for url in try store.pendingSharedFiles() {
-                let imported = try store.importFile(from: url)
-                let document = InboxDocument(
-                    title: emailSubject(in: imported) ?? imported.title,
-                    originalFilename: imported.originalFilename,
-                    storedFilename: imported.storedFilename,
-                    contentTypeIdentifier: imported.contentTypeIdentifier,
-                    fileSize: imported.fileSize,
-                    originalData: imported.originalData
-                )
-                document.manualSortIndex = (documents.compactMap(\.manualSortIndex).min() ?? 0) - 1
-                modelContext.insert(document)
-                try store.removePendingSharedFile(at: url)
-                selectedDocumentID = document.id
-                Task { await recognizeText(in: document) }
+                do {
+                    let imported = try store.importFile(from: url)
+                    let document = InboxDocument(
+                        title: emailSubject(in: imported) ?? imported.title,
+                        originalFilename: imported.originalFilename,
+                        storedFilename: imported.storedFilename,
+                        contentTypeIdentifier: imported.contentTypeIdentifier,
+                        fileSize: imported.fileSize,
+                        originalData: imported.originalData
+                    )
+                    document.manualSortIndex = (documents.compactMap(\.manualSortIndex).min() ?? 0) - 1
+                    modelContext.insert(document)
+                    try store.removePendingSharedFile(at: url)
+                    selectedDocumentID = document.id
+                    Task { await recognizeText(in: document) }
+                } catch {
+                    try? store.removePendingSharedFile(at: url)
+                    if errorMessage == nil {
+                        errorMessage = error.localizedDescription
+                    }
+                }
             }
         } catch {
-            errorMessage = error.localizedDescription
+            if errorMessage == nil {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 

@@ -177,19 +177,37 @@ struct DocumentStore {
     private func supportedType(for url: URL) -> UTType? {
         let resourceType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType
         let extensionType = UTType(filenameExtension: url.pathExtension)
+        let detectedType = typeFromFileSignature(at: url)
 
-        if isEmail(url: url, types: [resourceType, extensionType].compactMap { $0 })
+        if isEmail(url: url, types: [detectedType, resourceType, extensionType].compactMap { $0 })
             || looksLikeEmail(at: url) {
             return .emailMessage
         }
 
-        return [resourceType, extensionType]
+        return [detectedType, resourceType, extensionType]
             .compactMap { $0 }
             .first { candidate in
                 candidate.conforms(to: .pdf)
                     || candidate.conforms(to: .image)
                     || Self.officeTypes.contains(where: { officeType in candidate.conforms(to: officeType) })
             }
+    }
+
+    private func typeFromFileSignature(at url: URL) -> UTType? {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? handle.close() }
+        guard let data = try? handle.read(upToCount: 16), !data.isEmpty else { return nil }
+        let bytes = [UInt8](data)
+
+        if bytes.starts(with: [0x25, 0x50, 0x44, 0x46, 0x2D]) { return .pdf }
+        if bytes.starts(with: [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]) { return .png }
+        if bytes.starts(with: [0xFF, 0xD8, 0xFF]) { return .jpeg }
+        if bytes.starts(with: [0x47, 0x49, 0x46, 0x38]) { return .gif }
+        if bytes.starts(with: [0x49, 0x49, 0x2A, 0x00])
+            || bytes.starts(with: [0x4D, 0x4D, 0x00, 0x2A]) {
+            return .tiff
+        }
+        return nil
     }
 
     private func isEmail(url: URL, types: [UTType]) -> Bool {
