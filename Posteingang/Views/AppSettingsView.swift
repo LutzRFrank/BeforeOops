@@ -119,15 +119,23 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 28) {
             Spacer()
-            Image(systemName: "checkmark.shield.fill")
-                .font(.system(size: 54))
-                .foregroundStyle(.tint)
+            Image("FinderGuyDocuments")
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: 560)
+                .frame(height: 210)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .accessibilityLabel("Lil’ Finder Guy zwischen hohen Dokumentenstapeln")
             VStack(spacing: 8) {
                 Text("Willkommen bei BeforeOops")
                     .font(.largeTitle.bold())
                 Text("Dokumente prüfen, Fristen erkennen und nichts Wichtiges übersehen.")
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                Link(destination: URL(string: "https://lutzrfrank.github.io/BeforeOops/")!) {
+                    Label("BeforeOops im Web", systemImage: "safari")
+                }
+                .padding(.top, 6)
             }
             VStack(alignment: .leading, spacing: 22) {
                 onboardingPoint(
