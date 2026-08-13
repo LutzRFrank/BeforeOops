@@ -8,8 +8,8 @@
     </linearGradient>
   </defs>
   <g fill="url(#scan)">
-    <rect x="210" y="395" width="604" height="13" rx="6.5"/>
-    <rect x="210" y="496" width="604" height="13" rx="6.5"/>
-    <rect x="210" y="597" width="604" height="13" rx="6.5"/>
+    <rect x="210" y="350" width="604" height="13" rx="6.5"/>
+    <rect x="210" y="400" width="604" height="13" rx="6.5"/>
+    <rect x="210" y="450" width="604" height="13" rx="6.5"/>
   </g>
 </svg>

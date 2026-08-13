@@ -39,6 +39,17 @@
           }
         },
         {
+          "image-name" : "TrayBack.svg",
+          "name" : "Tray Back",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        },
+        {
           "image-name" : "Background.svg",
           "name" : "Background",
           "position" : {
