@@ -168,10 +168,29 @@ h2 {
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
+.app-store-badge {
+  display: inline-flex;
+  border-radius: 10px;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.app-store-badge img {
+  display: block;
+  width: 188px;
+  height: auto;
+}
+
 .button:hover,
-.button:focus-visible {
+.button:focus-visible,
+.app-store-badge:hover,
+.app-store-badge:focus-visible {
   transform: translateY(-2px);
   box-shadow: 0 17px 34px rgba(47, 103, 215, 0.32);
+}
+
+.app-store-badge:hover,
+.app-store-badge:focus-visible {
+  box-shadow: 0 17px 34px rgba(18, 25, 40, 0.3);
 }
 
 .button.secondary {
