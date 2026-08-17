@@ -1,8 +1,8 @@
 # Hinweise für das App-Review-Team
 
-## iOS und iPadOS 1.2
+## iOS und iPadOS 1.3
 
-Version 1.2 erweitert die iPad-Unterstützung und verbessert die Erstellung von Erinnerungen sowie die private iCloud-Synchronisierung.
+Version 1.3 überarbeitet den Willkommensbildschirm und das App-Symbol. Der Willkommensbildschirm enthält jetzt eine Illustration sowie einen Link zur BeforeOops-Webseite mit Produkt-, Datenschutz- und Supportinformationen. Er kann später in den Einstellungen erneut geöffnet werden.
 
 Von der Nutzerin oder dem Nutzer bestätigte Erinnerungen werden nun in einer eigenen Liste namens „BeforeOops“ gespeichert. Falls diese Liste noch nicht vorhanden ist, wird sie beim Erstellen der ersten Erinnerung automatisch im Konto der bisherigen Standardliste angelegt.
 
@@ -14,9 +14,9 @@ Die App registriert sich für stille CloudKit-Push-Mitteilungen, damit Änderung
 
 Für die Nutzung sind weder ein Benutzerkonto noch eine Anmeldung erforderlich. Der Zugriff auf Erinnerungen wird erst beim Erstellen einer Erinnerung angefragt.
 
-## macOS 1.2
+## macOS 1.3
 
-Version 1.2 verbessert die Erstellung von Erinnerungen sowie die private iCloud-Synchronisierung.
+Version 1.3 überarbeitet den Willkommensbildschirm und das App-Symbol. Der Willkommensbildschirm enthält jetzt eine Illustration sowie einen Link zur BeforeOops-Webseite mit Produkt-, Datenschutz- und Supportinformationen. Er kann später in den Einstellungen erneut geöffnet werden.
 
 Von der Nutzerin oder dem Nutzer bestätigte Erinnerungen werden nun in einer eigenen Liste namens „BeforeOops“ gespeichert. Falls diese Liste noch nicht vorhanden ist, wird sie beim Erstellen der ersten Erinnerung automatisch im Konto der bisherigen Standardliste angelegt.
 

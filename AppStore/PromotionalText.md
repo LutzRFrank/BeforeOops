@@ -1,9 +1,9 @@
 # Werbetext
 
-## iOS und iPadOS 1.2
+## iOS und iPadOS 1.3
 
-Jetzt auch auf dem iPad: Dokumente erfassen, mehrere Fristen übernehmen und alles privat über iCloud zwischen deinen Geräten synchronisieren.
+Dokumente erfassen, Fristen übernehmen und alles privat über iCloud zwischen iPhone, iPad und Mac synchronisieren – jetzt mit neuem Willkommenserlebnis.
 
-## macOS 1.2
+## macOS 1.3
 
-Dokumente erfassen, mehrere Fristen übernehmen und alles privat über iCloud zwischen Mac, iPhone und iPad synchronisieren.
+Dokumente erfassen, Fristen übernehmen und alles privat über iCloud zwischen Mac, iPhone und iPad synchronisieren – jetzt mit neuem Willkommenserlebnis.

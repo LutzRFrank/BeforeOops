@@ -1,25 +1,17 @@
 # Versionshinweise
 
-## iOS und iPadOS 1.2
+## iOS und iPadOS 1.3
 
 Neu in dieser Version:
 
-- Erinnerungen werden in einer eigenen „BeforeOops“-Liste gespeichert.
-- Für mehrere erkannte Termine lassen sich jeweils eigene Erinnerungen anlegen.
-- Ein Dokument bleibt offen, bis du es ausdrücklich als erledigt markierst.
-- Dokumente können direkt in der Liste umbenannt oder gelöscht werden.
-- Der Papierkorb kann vollständig geleert werden.
-- Die iCloud-Synchronisierung reagiert zuverlässiger auf Änderungen anderer Geräte.
-- Unvollständig geladene Originaldateien werden erkannt und nach vollständigem iCloud-Download automatisch ersetzt.
+- Ein neu gestalteter Willkommensbildschirm macht den Einstieg in BeforeOops anschaulicher.
+- Über den Willkommensbildschirm gelangst du direkt zur BeforeOops-Webseite mit weiteren Informationen und Support.
+- Das überarbeitete App-Symbol sorgt für einen frischen Auftritt auf deinem Home-Bildschirm.
 
-## macOS 1.2
+## macOS 1.3
 
 Neu in dieser Version:
 
-- Erinnerungen werden in einer eigenen „BeforeOops“-Liste gespeichert.
-- Für mehrere erkannte Termine lassen sich jeweils eigene Erinnerungen anlegen.
-- Ein Dokument bleibt offen, bis du es ausdrücklich als erledigt markierst.
-- Dokumente können umbenannt oder gelöscht werden.
-- Der Papierkorb kann vollständig geleert werden.
-- Die iCloud-Synchronisierung reagiert zuverlässiger auf Änderungen anderer Geräte.
-- Unvollständig geladene Originaldateien werden erkannt und nach vollständigem iCloud-Download automatisch ersetzt.
+- Ein neu gestalteter Willkommensbildschirm macht den Einstieg in BeforeOops anschaulicher.
+- Über den Willkommensbildschirm gelangst du direkt zur BeforeOops-Webseite mit weiteren Informationen und Support.
+- Das überarbeitete App-Symbol sorgt für einen frischen Auftritt im Dock und Finder.
