@@ -109,7 +109,34 @@ struct DocumentDetailView: View {
         }
         #else
         GeometryReader { geometry in
-            resizableDocumentLayout(height: geometry.size.height)
+            // Use the current detail column, which can resize while a document is open.
+            if geometry.size.width >= 700 {
+                HStack(spacing: 0) {
+                    previewSection
+                        .frame(width: geometry.size.width * 0.5)
+                    Divider()
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            if let summary = document.analysisSummary {
+                                intelligentAnalysisCard(summary: summary)
+                                    .frame(height: max(180, geometry.size.height * 0.35))
+                                Divider()
+                            }
+                            recognitionPanel
+                                .frame(minHeight: max(320, geometry.size.height * 0.6))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            } else if geometry.size.height < 600 {
+                // Keep every panel reachable on short windows and the outer display.
+                ScrollView {
+                    resizableDocumentLayout(height: 640)
+                        .frame(height: 640)
+                }
+            } else {
+                resizableDocumentLayout(height: geometry.size.height)
+            }
         }
         #endif
     }

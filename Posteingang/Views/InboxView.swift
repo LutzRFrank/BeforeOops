@@ -37,10 +37,6 @@ struct InboxView: View {
                 if !hideCompletedDocuments, inboxFilter == .open { inboxFilter = .all }
                 purgeExpiredTrash()
                 backfillCloudAssets()
-
-#if targetEnvironment(simulator)
-            loadSampleDocumentsIfNeeded()
-#endif
                 while !Task.isCancelled {
                     importPendingSharedDocuments()
                     try? await Task.sleep(for: .seconds(2))

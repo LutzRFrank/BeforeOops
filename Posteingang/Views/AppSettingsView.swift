@@ -117,6 +117,20 @@ struct OnboardingView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     var body: some View {
+        #if os(iOS)
+        ScrollView {
+            onboardingContent
+                .frame(maxWidth: .infinity)
+        }
+        .interactiveDismissDisabled(!hasCompletedOnboarding)
+        #else
+        onboardingContent
+            .interactiveDismissDisabled(!hasCompletedOnboarding)
+            .frame(minWidth: 620, minHeight: 620)
+        #endif
+    }
+
+    private var onboardingContent: some View {
         VStack(spacing: 28) {
             Spacer()
             Image("FinderGuyDocuments")
@@ -164,10 +178,6 @@ struct OnboardingView: View {
             .controlSize(.large)
         }
         .padding(32)
-        .interactiveDismissDisabled(!hasCompletedOnboarding)
-        #if os(macOS)
-        .frame(minWidth: 620, minHeight: 620)
-        #endif
     }
 
     private func onboardingPoint(icon: String, title: String, text: String) -> some View {
