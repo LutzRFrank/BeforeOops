@@ -1,5 +1,9 @@
 # Werbetext
 
+## iOS und iPadOS 1.4.1
+
+Dokumente erfassen, Fristen erkennen und rechtzeitig handeln. Jetzt mit flexibler Ansicht für iPhone und iPad – lokal analysiert und privat über iCloud synchronisiert.
+
 ## iOS und iPadOS 1.4
 
 Dokumente erfassen, Fristen erkennen und rechtzeitig handeln. Jetzt mit flexibler Ansicht für iPhone und iPad – lokal analysiert und privat über iCloud synchronisiert.
