@@ -2,7 +2,7 @@
 
 ## iOS und iPadOS 1.4
 
-Dokumente erfassen und Fristen im Blick behalten – jetzt mit flexibler Dokumentansicht für iPhone Duo. Lokal analysiert und privat über iCloud synchronisiert.
+Dokumente erfassen, Fristen erkennen und rechtzeitig handeln. Jetzt mit flexibler Ansicht für iPhone und iPad – lokal analysiert und privat über iCloud synchronisiert.
 
 ## iOS und iPadOS 1.3
 

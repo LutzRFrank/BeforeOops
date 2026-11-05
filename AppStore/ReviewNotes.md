@@ -2,9 +2,9 @@
 
 ## iOS und iPadOS 1.4
 
-Version 1.4 ergänzt eine anpassungsfähige iOS-Oberfläche für iPhone Duo. Die Dokumentansicht richtet sich nach der aktuell verfügbaren Größe: In breiten Detailansichten stehen Original und Auswertung nebeneinander; in kurzen Ansichten bleiben die Bereiche durch Scrollen erreichbar. Die Einführung ist auf iOS ebenfalls scrollbar.
+Version 1.4 (Build 2) verbessert die Darstellung auf iPhone und iPad. Die Dokumentansicht richtet sich nach der aktuell verfügbaren Größe: In breiten Detailansichten stehen Original und Auswertung nebeneinander; in niedrigen Ansichten bleiben die Bereiche durch Scrollen erreichbar. Die Einführung ist auf iOS ebenfalls scrollbar.
 
-Zum Prüfen ein Dokument importieren, öffnen und die verfügbare Fenstergröße ändern beziehungsweise das iPhone Duo auf- und zuklappen. Die Einführung kann in den Einstellungen über „Datenschutz & Einführung anzeigen“ erneut geöffnet werden.
+Zum Prüfen ein PDF oder Bild importieren und öffnen. Anschließend das Gerät drehen beziehungsweise auf dem iPad die verfügbare Fenstergröße ändern. Die nebeneinanderliegende Darstellung erscheint, sobald die Detailansicht ausreichend breit ist. Die Einführung kann in den Einstellungen über „Datenschutz & Einführung anzeigen“ erneut geöffnet werden.
 
 Die bestehenden Funktionen zur lokalen Texterkennung, Dokumentanalyse, privaten iCloud-Synchronisierung und Erstellung bestätigter Erinnerungen bleiben erhalten. Es gibt kein zusätzliches App-Benutzerkonto. Für die iCloud-Synchronisierung wird der persönliche Apple-Account des Geräts verwendet. Der Zugriff auf Erinnerungen wird beim Erstellen einer Erinnerung angefragt.
 

@@ -4,10 +4,10 @@
 
 Neu in dieser Version:
 
-- Die Dokumentansicht passt sich dynamisch an den verfügbaren Platz an – auch beim Auf- und Zuklappen des iPhone Duo.
-- Bei ausreichend breiter Ansicht stehen Original und Auswertung nebeneinander.
-- In kurzen Ansichten bleiben die Dokumentbereiche durch Scrollen erreichbar.
-- Die Einführung ist jetzt scrollbar, damit alle Informationen und die Schaltfläche „Loslegen“ auch auf kleinen Ansichten erreichbar bleiben.
+- Mehr Übersicht: Die Dokumentansicht passt sich automatisch an den verfügbaren Platz auf iPhone und iPad an.
+- Original und Auswertung nebeneinander: In breiten Ansichten kannst du das Dokument direkt mit seiner Analyse vergleichen.
+- Alles erreichbar: In niedrigen Ansichten kannst du durch die Dokumentbereiche scrollen.
+- Einfacher Einstieg: Die Einführung ist jetzt scrollbar, damit alle Hinweise und die Schaltfläche „Loslegen“ auch auf kleinen Bildschirmen erreichbar bleiben.
 
 ## iOS und iPadOS 1.3
 
